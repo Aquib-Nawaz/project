@@ -1,0 +1,15 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Dashboard{% endblock %}</title>
+        <link rel="stylesheet" href = "{% static 'Dashboard/bootstrap.min.css' %}">
+        <link rel="stylesheet" href = "{% static 'Dashboard/styles.css'  %}">
+    </head>
+    <body>
+ 
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>
