@@ -4,12 +4,46 @@
 <html lang="en">
     <head>
         <title>{% block title %}Dashboard{% endblock %}</title>
-        <link rel="stylesheet" href = "{% static 'Dashboard/bootstrap.min.css' %}">
-        <link rel="stylesheet" href = "{% static 'Dashboard/styles.css'  %}">
+        <link rel="stylesheet" href="{% static 'Dashboard/bootstrap.min.css' %}">
+        <link href="{% static 'Dashboard/styles.css' %}" rel="stylesheet">
     </head>
     <body>
- 
-        {% block body %}
-        {% endblock %}
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">DASHBOARD</a>
+          
+            <div>
+              <ul class="navbar-nav mr-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><strong>{{ user.username }}</strong></a>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'index' %}">All Posts</a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Following</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                {% endif %}
+              </ul>
+            </div>
+          </nav>
+        
+        <div class="body">
+            {% block body %}
+            {% endblock %}
+        </div>
     </body>
 </html>
