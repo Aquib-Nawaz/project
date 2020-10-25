@@ -22,12 +22,18 @@
         <div class="form-group">
             <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
         </div>
-        <label >Role:</label>
-        <div class="form-group">
-        <label class= "radio-inline"><input type="radio" name="role" value="student">Student</label>
-<label class="radio-inline"><input type="radio" value="instructor" name="role">Professor</label>
+         <legend class="col-form-legend col-sm-2">Role:</legend>
+        <div class="offset-sm-2 form-check form-check-inline">
+        <input id="option1" class="form-check-input" type="radio" name="role" value="student">
+        <label class= "form-check-label" for ="option1">Student</label>
         </div>
+        <div class="offset-sm-2 form-check form-check-inline">
+        <input class="form-check-input" type="radio" value="instructor" name="role" id="option2">
+        <label for="option2" class= "form-check-label">Professor</label>
+        </div>
+        <div class="form-group">
         <input class="btn btn-primary" type="submit" value="Register">
+        </div>
     </form>
 
     Already have an account? <a href="{% url 'login' %}">Log In here.</a>
