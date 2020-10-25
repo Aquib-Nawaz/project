@@ -2,24 +2,20 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    def __str__(self):
-        return self.name
+    role = models.CharField(max_length=255, default="NONE")
 
-class People(models.Model):
-    pass
-
-class Class(models.Model):
+class Classes(models.Model):
     name = models.CharField(max_length=255)
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="classes")
-    student = models.ManyToManyField(People, related_name="classes")
-    teaching_assistant = models.ManyToManyField(People, related_name="assist_classes")
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="teach_classes")
+    students = models.ManyToManyField(User, related_name="in_classes")
+    teaching_assistant = models.ManyToManyField(User, related_name="assist_classes")
     def __str__(self):
         return f"{self.name} by {self.instructor}"
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
     sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name="notifications_sent")
-    class_group = models.ForeignKey(Class, on_delete=models.PROTECT, related_name="notifications")
+    class_group = models.ForeignKey(Classes, on_delete=models.PROTECT, related_name="class_notification")
     topic = models.CharField(max_length=255)
     body = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
