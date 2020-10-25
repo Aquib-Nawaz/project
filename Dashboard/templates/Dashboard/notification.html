@@ -1,18 +1,34 @@
 {% extends 'Dashboard/layout.html' %}
-
+{% block title %}Add_Notification{% endblock %}
 {% block body %}
+{% if user.is_authenticated %}
+<h2>Create new notification</h2>
+
 <form action="{% url 'notification' %}" method="post">
     {% csrf_token %}
     <div class="form-group">
-         <input autofocus class="form-control" type="text" name="Topic" placeholder="Topic">
+         <input autofocus class="form-control" type="text" name="topic" placeholder="Topic">
     </div>
    <div class="form-group shadow-textarea">
-        <textarea class="form-control z-depth-1" rows="5" placeholder="Write something here..." name="Description"></textarea>
+        <textarea class="form-control z-depth-1" rows="7" placeholder="Write something here..." name="body"></textarea>
    </div>
-<label class="radio-inline"><input type="radio" name="optradio" checked>Option 1</label>
-<label class="radio-inline"><input type="radio" name="optradio">Option 2</label>
-<label class="radio-inline"><input type="radio" name="optradio">Option 3</label>
+<div>
+<label>Send to:</label>
+<div>
+<label class="radio-inline"><input type="radio" name="reciepent">Student</label>
+<label class="radio-inline"><input type="radio" name="reciepent">TA</label>
+<label class="radio-inline"><input type="radio" name="reciepent">Both</label>
+<select class="browser-default custom-select", name="class_group">
+  <option value="" disabled selected>Choose class</option>
+  
+</select>
 <br><br>
     <input class="btn btn-primary" type="submit" value="Send">
 </form>
+
+{% else %}
+<div class="alert alert-primary" role="alert">
+  Log in to access this functionality.
+</div>
+{% endif %}
 {% endblock %}
