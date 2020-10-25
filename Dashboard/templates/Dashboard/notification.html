@@ -1,7 +1,7 @@
 {% extends 'Dashboard/layout.html' %}
 {% block title %}Add_Notification{% endblock %}
 {% block body %}
-{% if user.is_authenticated %}
+{% if user.role == "instructor" %}
 <h2>Create new notification</h2>
 
 <form action="{% url 'notification' %}" method="post">
@@ -27,8 +27,8 @@
 </form>
 
 {% else %}
-<div class="alert alert-primary" role="alert">
-  Log in to access this functionality.
+<div class="alert alert-danger" role="alert">
+  Log in as instructor to access this functionality.
 </div>
 {% endif %}
 {% endblock %}

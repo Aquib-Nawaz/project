@@ -56,7 +56,11 @@ def register(request):
         # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
-        role = request.POST["role"]
+        role = request.POST.get("role", None)
+        if role == None:
+            return render(request, "Dashboard/register.html", {
+                "message": "Role must be chosen"
+            })
         if password != confirmation:
             return render(request, "Dashboard/register.html", {
                 "message": "Passwords must match."
@@ -75,7 +79,7 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "Dashboard/register.html")
-
+@login_required(login_url="login")
 def notification(request):
 	if request.method == "POST":
 		pass
