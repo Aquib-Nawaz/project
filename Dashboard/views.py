@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -85,3 +85,35 @@ def notification(request):
 		pass
 	else:
 		return render (request, "Dashboard/notification.html", {})
+
+@login_required(login_url="login")
+def pending_instructor(request):
+    try:
+        users = User.objects.filter(role="pending")
+    except:
+        pass
+    return render (request, "Dashboard/add_instructor.html", {"users": users})
+
+@login_required(login_url="login")
+def add_instructor(request, id):
+    user = request.user
+    if user.is_staff:
+        try:
+            use = User.objects.get(pk=id)
+        except:
+            raise Http404("Requsested user not found")
+        use.role = "instructor"
+        use.save()
+    return HttpResponseRedirect(reverse("pending_instructor"))
+
+@login_required(login_url="login")    
+def delete_instructor(request, id):
+    user = request.user
+    if user.is_staff:
+        try:
+            User.objects.get(pk=id).delete()
+        except:
+            raise Http404("Requsested user not found")
+        
+    return HttpResponseRedirect(reverse("pending_instructor"))
+

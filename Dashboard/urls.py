@@ -8,4 +8,7 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("add_notification", views.notification, name="notification"),
+    path("pending_instructor", views.pending_instructor, name="pending_instructor"),
+    path("<int:id>/add_instructor", views.add_instructor, name="add_instructor"),
+    path("<int:id>/delete_instructor", views.delete_instructor, name="delete_instructor"),
 ]

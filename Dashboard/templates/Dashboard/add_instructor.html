@@ -1,0 +1,27 @@
+{% extends 'Dashboard/layout.html' %}
+{% block title %} Pending Request For Instructor {% endblock %}
+{% block body %}
+{% if user.is_staff %}
+<div class="list-group">
+{% for use in users %}
+
+<div class="list-group-item">
+    <div class="row" style="display: flex; justify-content: space-between;">
+        <h5 class="mb-1">{{ use.username }}</h5>
+        <h6 class="mb-1">{{ use.email }}</h6>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <button class="btn btn-primary btn-md center-block" Style="width: 100px;" OnClick="location.href='{% url 'add_instructor' use.id %}'" >Add</button>
+            <button class="btn btn-danger btn-md center-block" Style="width: 100px;" OnClick="location.href='{% url 'delete_instructor' use.id %}'" >Delete</button>
+         </div>
+    </div>
+</div>
+{% empty %}
+<h3>No pending request</h3>
+{% endfor %}
+</div>
+{% else %}
+<div class = "alert alert-danger ">You are not authorised to do it</div>
+{% endif %}
+{% endblock %}
