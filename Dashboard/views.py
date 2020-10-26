@@ -8,7 +8,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
-
+from pyfcm import FCMNotification
 from .models import User
 
 
@@ -82,7 +82,12 @@ def register(request):
 @login_required(login_url="login")
 def notification(request):
 	if request.method == "POST":
-		pass
+		push_service = FCMNotification(api_key="AAAARFVNDDc:APA91bETk2utEMjEJB7k9QE51q5RfqM-PfLCtWICq413mkvR1nP_PV8wwpfRxBbgPiULysbycpMv_LBh9MSRfzGYaX4EBV7mCSA9sKVfxZ_ommvAW3qoLvj3JnpWrRB6PI5eZiGgOa2X")
+		registration_id = "cl9OOak3RlKO7LX5m7h4LP:APA91bGRf8vw6iXrLwusy5PNagoAR04UHUo4RYXkGm_35pS7_vbNH2pAaeCI-HCpXW6JW0gvsVYfEz-Hr6gWZELqX7rB-2hsffeFOEAFZ9d57lsfMKYsQeDr5MmzhEaKbZXxX0IWPKJ7"
+		message_title = request.POST["topic"]
+		message_body = request.POST["body"]
+		result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
+		return HttpResponseRedirect(reverse("index"))
 	else:
 		return render (request, "Dashboard/notification.html", {})
 
