@@ -33,7 +33,7 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, username=username, password=password) 
 
         # Check if authentication successful
         if user is not None:
@@ -87,6 +87,16 @@ def register_student(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
+
+@api_view(['POST'])
+def login_student(request):
+    username = request.data["username"]
+    password = request.data["password"]
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        return Response(status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @login_required(login_url="login")
 def notification(request):
