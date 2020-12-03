@@ -10,6 +10,10 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from pyfcm import FCMNotification
 from .models import User
+from .serializers import UserSerializer
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 
 def index(request):
@@ -56,11 +60,7 @@ def register(request):
         # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
-        role = request.POST.get("role", None)
-        if role == None:
-            return render(request, "Dashboard/register.html", {
-                "message": "Role must be chosen"
-            })
+
         if password != confirmation:
             return render(request, "Dashboard/register.html", {
                 "message": "Passwords must match."
@@ -69,7 +69,7 @@ def register(request):
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
-            user.role = role
+            user.role = "pending"
             user.save()
         except IntegrityError:
             return render(request, "Dashboard/register.html", {
@@ -79,6 +79,15 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "Dashboard/register.html")
+
+@api_view(['POST'])
+def register_student(request):
+    serializer = UserSerializer(data = request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
+
 @login_required(login_url="login")
 def notification(request):
 	if request.method == "POST":
