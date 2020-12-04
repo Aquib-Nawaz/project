@@ -36,7 +36,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password) 
 
         # Check if authentication successful
-        if user is not None:
+        if user is not None and user.role != "student":
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
         else:
@@ -93,11 +93,26 @@ def login_student(request):
     username = request.data["username"]
     password = request.data["password"]
     user = authenticate(request, username=username, password=password)
-    if user is not None:
+    if user is not None and user.role=="student":
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def add_token(request):
+    username = request.data["username"]
+    try:
+        user = User.objects.get(username=username)
+        user.token = request.data["token"]
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def get_classes(request):
+    pass
+        
 @login_required(login_url="login")
 def notification(request):
 	if request.method == "POST":

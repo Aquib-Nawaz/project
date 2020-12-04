@@ -3,6 +3,7 @@ from django.db import models
 
 class User(AbstractUser):
     role = models.CharField(max_length=255, default="NONE")
+    token = models.CharField(max_length=255, null=True)
 
 class Classes(models.Model):
     name = models.CharField(max_length=255)

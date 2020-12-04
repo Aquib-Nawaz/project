@@ -13,4 +13,5 @@ urlpatterns = [
     path("<int:id>/delete_instructor", views.delete_instructor, name="delete_instructor"),
     path("register_student", views.register_student, name="register_student"),
     path("login_student", views.login_student, name="login_student"),
+    path("add_token", views.add_token)
 ]
