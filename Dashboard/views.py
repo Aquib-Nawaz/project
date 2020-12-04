@@ -107,7 +107,7 @@ def add_token(request):
         user.token = request.data["token"]
         user.save()
         return Response(status=status.HTTP_200_OK)
-    except User.DoesNotExist:
+    except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -116,22 +116,35 @@ def get_classes(request):
         
 @login_required(login_url="login")
 def notification(request):
-	if request.method == "POST":
-		push_service = FCMNotification(api_key="AAAARFVNDDc:APA91bETk2utEMjEJB7k9QE51q5RfqM-PfLCtWICq413mkvR1nP_PV8wwpfRxBbgPiULysbycpMv_LBh9MSRfzGYaX4EBV7mCSA9sKVfxZ_ommvAW3qoLvj3JnpWrRB6PI5eZiGgOa2X")
-		registration_id = "cl9OOak3RlKO7LX5m7h4LP:APA91bGRf8vw6iXrLwusy5PNagoAR04UHUo4RYXkGm_35pS7_vbNH2pAaeCI-HCpXW6JW0gvsVYfEz-Hr6gWZELqX7rB-2hsffeFOEAFZ9d57lsfMKYsQeDr5MmzhEaKbZXxX0IWPKJ7"
-		message_title = request.POST["topic"]
-		message_body = request.POST["body"]
-		result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
-		return HttpResponseRedirect(reverse("index"))
-	else:
-		return render (request, "Dashboard/notification.html", {})
+    user = request.user
+    if request.method == "POST":
+        push_service = FCMNotification(api_key="AAAARFVNDDc:APA91bETk2utEMjEJB7k9QE51q5RfqM-PfLCtWICq413mkvR1nP_PV8wwpfRxBbgPiULysbycpMv_LBh9MSRfzGYaX4EBV7mCSA9sKVfxZ_ommvAW3qoLvj3JnpWrRB6PI5eZiGgOa2X")
+        #registration_id = "cl9OOak3RlKO7LX5m7h4LP:APA91bGRf8vw6iXrLwusy5PNagoAR04UHUo4RYXkGm_35pS7_vbNH2pAaeCI-HCpXW6JW0gvsVYfEz-Hr6gWZELqX7rB-2hsffeFOEAFZ9d57lsfMKYsQeDr5MmzhEaKbZXxX0IWPKJ7"
+        registration_ids = []
+        id = request.POST["class_group"]
+        try:
+            cl = user.teach_classes.get(pk=id)
+        except:
+            raise Http404
+        students = cl.students.all()
+        for s in students:
+            if s.token is not None:
+                registration_ids.append(s.token)
+        print (registration_ids)
+        message_title = request.POST["topic"]
+        message_body = request.POST["body"]
+        result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body)
+        print (result)
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render (request, "Dashboard/notification.html", {"classes":user.teach_classes.all()})
 
 @login_required(login_url="login")
 def pending_instructor(request):
     try:
         users = User.objects.filter(role="pending")
     except:
-        pass
+        raise Http404
     return render (request, "Dashboard/add_instructor.html", {"users": users})
 
 @login_required(login_url="login")
@@ -167,6 +180,24 @@ def add_class(request):
         cl.save()
         return HttpResponseRedirect(reverse("index"))
 
+@login_required(login_url="login")
+def class_view(request, id):
+    user = request.user
 
+    try:
+        cl = user.teach_classes.get(pk=id)
+        return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all()})
+    except:
+        raise Http404
 
-
+@login_required(login_url="login")
+def add_student(request, id):
+    user = request.user
+    try:
+        cl = user.teach_classes.get(pk=id)
+        print(cl)
+        cl.students.add(User.objects.get(pk=request.POST["student"]))
+        cl.save()
+    except:
+        raise Http404
+    return HttpResponseRedirect(reverse("class_view", args=[id]))

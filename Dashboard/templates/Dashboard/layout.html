@@ -10,7 +10,7 @@
     <body>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">DASHBOARD</a>
+            <a class="navbar-brand" href="{% url 'index' %}">DASHBOARD</a>
           
             <div>
               <ul class="navbar-nav mr-auto">
@@ -29,6 +29,9 @@
                 {% if user.role == "instructor" %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'notification' %}">Add Notification</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'add_class' %}">Add Class</a>
                     </li>
                 {% endif %}
                 

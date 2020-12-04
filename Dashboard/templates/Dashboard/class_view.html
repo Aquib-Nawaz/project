@@ -1,0 +1,28 @@
+{% extends "Dashboard/layout.html" %}
+
+{% block title %} ClassView {% endblock %}
+
+{% block body %}
+{% if user.is_authenticated %}
+    <h3>{{ class.name }}</h3>
+    <form action = "{% url 'add_student' class.id %}", method="post">
+        {% csrf_token %}
+        <label for="students">Add Student:</label>
+        <div class="form-group">
+            <select name="student">   
+            {% for stud in students %}
+                <option value = "{{ stud.id }}" >{{ stud.username }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        <input class="btn btn-primary" type="submit" value="Add">
+    </form>
+    {% for notif in notifications %}
+        <li>{{ notif.topic }}</li>
+    {% endfor %}
+     
+{% else %}
+    <h3>Login to access functionalities.</h3>
+{% endif %}
+
+{% endblock %}

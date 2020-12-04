@@ -3,7 +3,9 @@
 {% block body %}
 {% if user.is_authenticated %}
     {% for class in classes %}
-        <li>{{ class.name }}</li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'class_view' class.id %}">{{ class.name }}</a>
+    </li>
     {% endfor %}
 {% else %}
     <h3>Login to access functionalities.</h3>
