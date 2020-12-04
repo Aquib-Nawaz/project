@@ -2,7 +2,9 @@
 
 {% block body %}
 {% if user.is_authenticated %}
-    TODO
+    {% for class in classes %}
+        <li>{{ class.name }}</li>
+    {% endfor %}
 {% else %}
     <h3>Login to access functionalities.</h3>
 {% endif %}

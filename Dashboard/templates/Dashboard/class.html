@@ -1,0 +1,17 @@
+{% extends "Dashboard/layout.html" %}
+
+{% block body %}
+{% if user.is_authenticated %}
+    <form action="{% url 'add_class' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <input autofocus class="form-control" type="text" name="title" placeholder="Title">
+        </div>
+        <input class="btn btn-primary" type="submit" value="ADD">
+    </form>
+    
+{% else %}
+    <h3>Login to access functionalities.</h3>
+{% endif %}
+
+{% endblock %}

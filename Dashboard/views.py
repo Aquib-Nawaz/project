@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
 from pyfcm import FCMNotification
-from .models import User
+from .models import User, Classes
 from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -19,8 +19,9 @@ from rest_framework.response import Response
 def index(request):
 
     # Authenticated users view their inbox
+    user = request.user
     if request.user.is_authenticated:
-        return render(request, "Dashboard/index.html")
+        return render(request, "Dashboard/index.html", {"classes":user.teach_classes.all()})
 
     # Everyone else is prompted to sign in
     else:
@@ -155,4 +156,17 @@ def delete_instructor(request, id):
             raise Http404("Requsested user not found")
         
     return HttpResponseRedirect(reverse("pending_instructor"))
+
+@login_required(login_url="login")
+def add_class(request):
+    if request.method == "GET":
+        return render (request, "Dashboard/class.html")
+    if request.method == "POST":
+        title = request.POST["title"]
+        cl = Classes.objects.create(name=title, instructor=request.user)
+        cl.save()
+        return HttpResponseRedirect(reverse("index"))
+
+
+
 
