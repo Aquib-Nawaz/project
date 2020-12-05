@@ -1,0 +1,19 @@
+{% extends "Dashboard/layout.html" %}
+
+{% block body %}
+{% if user.is_authenticated %}
+    <h3>{{ notif.class_group }}</h3>
+    <h4>{{ notif.topic }} by {{ notif.sender }}</h4>
+    <p>{{ notif.timestamp }}</p>
+    <p>{{ notif.body }}</p>
+    {% if user.role == "instructor" %}
+    <form action="{% url 'notification_view' notif.id %}" method="POST">
+        {% csrf_token %}
+        <button type = "submit" class="btn btn-danger btn-md center-block" Style="width: 100px;" >Delete</button>
+    </form>
+    {% endif %} 
+{% else %}
+    <h3>Login to access functionalities.</h3>
+{% endif %}
+
+{% endblock %}
