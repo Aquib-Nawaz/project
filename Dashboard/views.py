@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
 from pyfcm import FCMNotification
-from .models import User, Classes
+from .models import User, Classes, Notification
 from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -20,10 +20,10 @@ def index(request):
 
     # Authenticated users view their inbox
     user = request.user
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and user.role=="instructor":
         return render(request, "Dashboard/index.html", {"classes":user.teach_classes.all()})
-
-    # Everyone else is prompted to sign in
+    elif request.user.is_authenticated and user.role=="TA":
+        return render(request, "Dashboard/index.html", {"classes":user.assist_classes.all()})
     else:
         return HttpResponseRedirect(reverse("login"))
 
@@ -37,7 +37,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password) 
 
         # Check if authentication successful
-        if user is not None and user.role != "student":
+        if user is not None and user.role != "student" :
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
         else:
@@ -117,27 +117,33 @@ def get_classes(request):
 @login_required(login_url="login")
 def notification(request):
     user = request.user
+    if user.role == "TA":
+        classes = user.assist_classes.all()
+    else:
+        classes = user.teach_classes.all()
     if request.method == "POST":
         push_service = FCMNotification(api_key="AAAARFVNDDc:APA91bETk2utEMjEJB7k9QE51q5RfqM-PfLCtWICq413mkvR1nP_PV8wwpfRxBbgPiULysbycpMv_LBh9MSRfzGYaX4EBV7mCSA9sKVfxZ_ommvAW3qoLvj3JnpWrRB6PI5eZiGgOa2X")
         #registration_id = "cl9OOak3RlKO7LX5m7h4LP:APA91bGRf8vw6iXrLwusy5PNagoAR04UHUo4RYXkGm_35pS7_vbNH2pAaeCI-HCpXW6JW0gvsVYfEz-Hr6gWZELqX7rB-2hsffeFOEAFZ9d57lsfMKYsQeDr5MmzhEaKbZXxX0IWPKJ7"
         registration_ids = []
         id = request.POST["class_group"]
         try:
-            cl = user.teach_classes.get(pk=id)
+            cl = classes.get(pk=id)
         except:
             raise Http404
         students = cl.students.all()
         for s in students:
             if s.token is not None:
                 registration_ids.append(s.token)
-        print (registration_ids)
+        print (students)
         message_title = request.POST["topic"]
         message_body = request.POST["body"]
         result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body)
+        notif = Notification.objects.create(sender=user, class_group=cl, topic=message_title, body=message_body)
+        notif.save()
         print (result)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render (request, "Dashboard/notification.html", {"classes":user.teach_classes.all()})
+        return render (request, "Dashboard/notification.html", {"classes":classes})
 
 @login_required(login_url="login")
 def pending_instructor(request):
@@ -185,10 +191,33 @@ def class_view(request, id):
     user = request.user
 
     try:
-        cl = user.teach_classes.get(pk=id)
-        return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all()})
+        if user.role == "instructor":
+            cl = user.teach_classes.get(pk=id)
+            return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all()})
+        else:
+            cl = user.assist_classes.get(pk=id)
+            return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})            
     except:
         raise Http404
+
+def notification_view(request, id):
+    user = request.user
+    try:
+        notif = Notification.objects.get(pk=id)
+        id1 = notif.class_group.id
+        if user.role == "instructor":
+            cl = user.teach_classes.get(pk=id1)
+            #return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all()})
+        else:
+            cl = user.assist_classes.get(pk=id1)
+            #return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})            
+    except:
+        raise Http404
+    if request.method == "GET":
+        return render (request, 'Dashboard/notification_view.html', {"notif": notif})
+    if request.method == "POST":
+        notif.delete()
+        return HttpResponseRedirect(reverse("index")) 
 
 @login_required(login_url="login")
 def add_student(request, id):
@@ -197,6 +226,20 @@ def add_student(request, id):
         cl = user.teach_classes.get(pk=id)
         print(cl)
         cl.students.add(User.objects.get(pk=request.POST["student"]))
+        cl.save()
+    except:
+        raise Http404
+    return HttpResponseRedirect(reverse("class_view", args=[id]))
+
+@login_required(login_url="login")
+def add_ta(request, id):
+    user = request.user
+    try:
+        cl = user.teach_classes.get(pk=id)
+        cl.teaching_assistant.add(User.objects.get(pk=request.POST["ta"]))
+        ta = User.objects.get(pk=request.POST["ta"])
+        ta.role = "TA"
+        ta.save()
         cl.save()
     except:
         raise Http404

@@ -14,19 +14,20 @@ class Classes(models.Model):
         return f"{self.name} by {self.instructor}"
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    #user = models.ForeignKey(User, on_delete=models.CASCADE, related_namcle="notifications")
     sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name="notifications_sent")
     class_group = models.ForeignKey(Classes, on_delete=models.PROTECT, related_name="class_notification")
     topic = models.CharField(max_length=255)
     body = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-    reciepent = models.CharField(max_length=255)
+    seen = models.ManyToManyField(User, related_name="recieved_notif")
+    #reciepent = models.CharField(max_length=255)
 
     def serialize(self):
         return {
             "id": self.id,
             "sender": self.sender.name,
-            "recipient": [user.email for user in self.recipients.all()],
+            #"recipient": [user.email for user in self.recipients.all()],
             "topic": self.topic,
             "body": self.body,
             "timestamp": self.timestamp.strftime("%m/%d/%Y, %H:%M: %S"),

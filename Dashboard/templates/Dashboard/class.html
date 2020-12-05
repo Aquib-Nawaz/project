@@ -5,7 +5,7 @@
     <form action="{% url 'add_class' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
-            <input autofocus class="form-control" type="text" name="title" placeholder="Title">
+            <input autofocus class="form-control" type="text" name="title" placeholder="Title" required>
         </div>
         <input class="btn btn-primary" type="submit" value="ADD">
     </form>

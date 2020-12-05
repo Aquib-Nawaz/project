@@ -16,5 +16,8 @@ urlpatterns = [
     path("add_token", views.add_token),
     path("add_class", views.add_class, name="add_class"),
     path("<int:id>/class_view", views.class_view, name="class_view"),
-    path("<int:id>/add_student", views.add_student, name="add_student"),    
+    path("<int:id>/add_student", views.add_student, name="add_student"),
+    path("<int:id>/add_ta", views.add_ta, name="add_ta"),
+    path("<int:id>/notification_view", views.notification_view, name="notification_view"),
+        
 ]

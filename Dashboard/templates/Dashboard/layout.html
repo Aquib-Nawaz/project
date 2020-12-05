@@ -26,10 +26,13 @@
                     </li>
                 {% endif %}
 
-                {% if user.role == "instructor" %}
+                {% if user.role == "instructor" or user.role == "TA" %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'notification' %}">Add Notification</a>
                     </li>
+                {% endif %}
+
+                {% if user.role == "instructor" %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'add_class' %}">Add Class</a>
                     </li>
