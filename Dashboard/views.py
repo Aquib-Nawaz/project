@@ -122,6 +122,7 @@ def get_classes(request):
     data = [cl.serialize() for cl in classes]
     if user.role == "TA":
         data = data + [cl.serialize() for cl in user.assist_classes.all()]
+    print (data)
     return Response({"data": data}, status=status.HTTP_200_OK)
 
 @login_required(login_url="login")
