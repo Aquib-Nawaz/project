@@ -160,7 +160,7 @@ def notification(request):
         else:
             result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, low_priority=True)
 
-        notif = Notification.objects.create(sender=user, class_group=cl, topic=message_title, body=message_body, priority=priority)
+        notif = Notification.objects.create(sender=user, class_group=cl, topic=message_title, reciepent=reciepent, body=message_body, priority=priority)
         notif.save()
         print (result)
         return HttpResponseRedirect(reverse("index"))
@@ -237,12 +237,15 @@ def notification_view(request, id):
     except:
         raise Http404
     if request.method == "GET":
+        
         if notif.reciepent == "student":
-            total = len(cl.students.all())
+            total = cl.students.all().count()
+            
         else:
-            total = len(cl.teaching_assistant.all())
-            seen = notif.seen.all()
-            seen_count = len(seen)
+            total = cl.teaching_assistant.all().count()
+            
+        seen = notif.seen.all()
+        seen_count = seen.count()
         return render (request, 'Dashboard/notification_view.html', {"notif": notif, "total":total,
              "seen_count":seen_count, "seen": seen})
     if request.method == "POST":
