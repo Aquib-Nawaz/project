@@ -3,11 +3,11 @@
 {% block body %}
 {% if user.is_authenticated %}
     <h3>{{ notif.class_group }}</h3>
-    <h4>{{ notif.topic }} by {{ notif.sender }}</h4>
+    <h4>{{ notif.topic }} sent by {{ notif.sender }}</h4>
     <p>{{ notif.timestamp }}</p>
     <p>{{ notif.body }}</p>
 
-    <p style="color: grey;">Seen by {{ seen_count }} ({{ total }})</p>
+    <i style="color: grey;">Seen by {{ seen_count }} ({{ total }})</i>
     {% for s in seen %}
         {{ s.username }}
     {% endfor %}

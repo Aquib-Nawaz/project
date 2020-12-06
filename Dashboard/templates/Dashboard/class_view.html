@@ -4,26 +4,31 @@
 
 {% block body %}
 {% if user.is_authenticated %}
-    <h3>{{ class.name }}</h3>
+    <h1 style="text-align: center; color: skyblue;">{{ class.name }}</h3>
     {% if user.role == "instructor" %}
+    <button class="btn btn-primary" onclick="myFunction('add_student')">Add Student:</button>
+    <div id ="add_student" style="display: none;">
     <form action = "{% url 'add_student' class.id %}", method="post">
         {% csrf_token %}
-        <label for="students">Add Student:</label>
+        
         <div class="form-group">
-            <select name="student">   
+            <select class="browser-default custom-select" name="student" required>   
+                <option value = "" selected disabled >Choose Student</option>
             {% for stud in students %}
                 <option value = "{{ stud.id }}" >{{ stud.username }}</option>
             {% endfor %}
             </select>
         </div>
         <input class="btn btn-primary" type="submit" value="Add">
-    </form>
-
+    </form></div>
+    <br><br>
+    <button class = "btn btn-primary" onclick="myFunction('add_ta')">Add TA:</button>
+    <div id="add_ta" style="display:none;">
     <form action = "{% url 'add_ta' class.id %}", method="post">
-        {% csrf_token %}
-        <label for="students">Add TA:</label>
+        {% csrf_token %}           
         <div class="form-group">
-            <select name="ta">   
+            <select class="browser-default custom-select" name="ta" required>
+                <option value = "" selected disabled >Choose TA</option>   
             {% for stud in students %}
                 <option value = "{{ stud.id }}" >{{ stud.username }}</option>
             {% endfor %}
@@ -31,12 +36,14 @@
         </div>
         <input class="btn btn-primary" type="submit" value="Add">
     </form>
+    </div>
+    <br><br>
     {% endif %}
     <h3>Sent Notifications</h3>
     {% for notif in notifications %}
-        <li class="nav-item">
+        <div class="nav-item elem">
             <a class="nav-link" href="{% url 'notification_view' notif.id %}">{{ notif.topic }}</a>
-        </li>
+        </div>
     {% empty %}
         <h4>No notifications sent yet</h4>
     {% endfor %}

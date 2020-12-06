@@ -1,3 +1,11 @@
 body {
   padding: 10px;
 }
+.elem{
+  border: thin solid grey ; 
+  margin: 0px 0px 10px 0px; 
+  padding: 5px; color: skyblue;
+  border-radius: 5px;
+  background-color: lightblue;
+}
+

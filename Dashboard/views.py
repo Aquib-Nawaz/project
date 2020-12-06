@@ -23,7 +23,9 @@ def index(request):
         return render(request, "Dashboard/index.html", {"classes":user.teach_classes.all()})
     elif request.user.is_authenticated and user.role=="TA":
         return render(request, "Dashboard/index.html", {"classes":user.assist_classes.all()})
-    else:
+    elif user.is_staff:
+        return render(request, "Dashboard/index.html")
+    else:    
         return HttpResponseRedirect(reverse("login"))
 
 
