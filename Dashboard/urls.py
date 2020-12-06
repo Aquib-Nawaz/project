@@ -22,5 +22,6 @@ urlpatterns = [
     path("get_classes", views.get_classes),
     path("seen_notif", views.seen_notif),
     path("<int:id>/remove_student", views.remove_student, name="remove_student"),
+    path("get_notifications", views.get_notifications),
         
 ]

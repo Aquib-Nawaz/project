@@ -30,6 +30,8 @@ class Notification(models.Model):
     reciepent = models.CharField(max_length=255)
     priority = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ("-timestamp",)
     def serialize(self):
         return {
             "id": self.id,

@@ -1,5 +1,5 @@
 {% extends "Dashboard/layout.html" %}
-
+{% block title %} {% endblock %}
 {% block body %}
 {% if user.is_authenticated %}
     <form action="{% url 'add_class' %}" method="post">

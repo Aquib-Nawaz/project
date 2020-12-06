@@ -119,11 +119,11 @@ def get_classes(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     classes = user.in_classes.all()
-    data = [cl.serialize() for cl in classes]
+    data1 = [cl.serialize() for cl in classes]
     if user.role == "TA":
-        data = data + [cl.serialize() for cl in user.assist_classes.all()]
+        data2 = [cl.serialize() for cl in user.assist_classes.all()]
     print (data)
-    return Response({"data": data}, status=status.HTTP_200_OK)
+    return Response({"data1": data1, "data2":data2}, status=status.HTTP_200_OK)
 
 @login_required(login_url="login")
 def notification(request):
@@ -290,9 +290,17 @@ def seen_notif(request):
 
 @api_view(['POST'])
 def get_notifications(request):
-    pass
+    cl_id = request.data["id"]
+    role = request.data["role"]
+    try:
+        cl = Classes.objects.get(pk=cl_id)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    notifications = cl.class_notification.filter(reciepent=role)
+    data = [notif.serialize() for notif in notifications]
+    return Response(data, status=status.HTTP_200_OK)
 
-@login_required(login_url='login')
+@login_required(login_url='login')    
 def remove_student(request, id):
     user = request.user
     stud_id = request.POST["remove_student"]
