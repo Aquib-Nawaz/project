@@ -1,8 +1,9 @@
 function myFunction(id) {
-    var x = document.getElementById(id);
-    if (x.style.display === "none") {
-      x.style.display = "block";
-    } else {
-      x.style.display = "none";
-    }
+    var id1 = ["add_ta", "add_student", "remove_student"];
+    var elem = [];
+    for (e of id1)
+        document.getElementById(e).style.display = "none"; 
+    var x = document.getElementById(id);   
+    x.style.display = "block";
+    
   }

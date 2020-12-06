@@ -6,8 +6,13 @@
 {% if user.is_authenticated %}
     <h1 style="text-align: center; color: skyblue;">{{ class.name }}</h3>
     {% if user.role == "instructor" %}
-    <button class="btn btn-primary" onclick="myFunction('add_student')">Add Student:</button>
+    
+    <button class="btn btn-primary" style="padding-left: 10px;" onclick="myFunction('add_student')">Add Student:</button>
+    <button class = "btn btn-primary" style="padding-left: 10px;" onclick="myFunction('add_ta')">Add TA:</button>
+    <button class="btn btn-primary" onclick="myFunction('remove_student')">Remove Student:</button>
+    
     <div id ="add_student" style="display: none;">
+        <br>
     <form action = "{% url 'add_student' class.id %}", method="post">
         {% csrf_token %}
         
@@ -21,9 +26,9 @@
         </div>
         <input class="btn btn-primary" type="submit" value="Add">
     </form></div>
-    <br><br>
-    <button class = "btn btn-primary" onclick="myFunction('add_ta')">Add TA:</button>
+    
     <div id="add_ta" style="display:none;">
+        <br>
     <form action = "{% url 'add_ta' class.id %}", method="post">
         {% csrf_token %}           
         <div class="form-group">
@@ -37,7 +42,22 @@
         <input class="btn btn-primary" type="submit" value="Add">
     </form>
     </div>
-    <br><br>
+    <div id ="remove_student" style="display: none;">
+        <br>
+    <form action = "{% url 'remove_student' class.id %}", method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <select class="browser-default custom-select" name="remove_student" required>   
+                <option value = "" selected disabled >Choose Student</option>
+            {% for stud in in_student %}
+                <option value = "{{ stud.id }}" >{{ stud.username }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        <input class="btn btn-primary" type="submit" value="Remove">
+    </form></div>
+    <br>
     {% endif %}
     <h3>Sent Notifications</h3>
     {% for notif in notifications %}

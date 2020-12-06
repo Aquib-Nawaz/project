@@ -115,12 +115,13 @@ def add_token(request):
 def get_classes(request):
     username = request.data["name"]
     try:
-        
         user = User.objects.get(username=username)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     classes = user.in_classes.all()
     data = [cl.serialize() for cl in classes]
+    if user.role == "TA":
+        data = data + [cl.serialize() for cl in user.assist_classes.all()]
     return Response({"data": data}, status=status.HTTP_200_OK)
 
 @login_required(login_url="login")
@@ -213,7 +214,8 @@ def class_view(request, id):
     try:
         if user.role == "instructor":
             cl = user.teach_classes.get(pk=id)
-            return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all()})
+            in_student = cl.students.all()
+            return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all(), "in_student": in_student})
         else:
             cl = user.assist_classes.get(pk=id)
             return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})            
@@ -284,3 +286,21 @@ def seen_notif(request):
     notif.seen.add(user)
     notif.save()
     return Response(status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def get_notifications(request):
+    pass
+
+@login_required(login_url='login')
+def remove_student(request, id):
+    user = request.user
+    stud_id = request.POST["remove_student"]
+    try:
+        cl = user.teach_classes.get(pk=id)
+        cl.students.remove(stud_id)
+        cl.save()
+    except:
+        raise Http404
+    return HttpResponseRedirect(reverse("class_view", args=[id]))
+    
+
