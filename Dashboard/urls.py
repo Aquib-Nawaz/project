@@ -19,5 +19,7 @@ urlpatterns = [
     path("<int:id>/add_student", views.add_student, name="add_student"),
     path("<int:id>/add_ta", views.add_ta, name="add_ta"),
     path("<int:id>/notification_view", views.notification_view, name="notification_view"),
+    path("get_classes", views.get_classes),
+    path("seen_notif", views.seen_notif),
         
 ]

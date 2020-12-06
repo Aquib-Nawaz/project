@@ -15,7 +15,6 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-
 def index(request):
 
     # Authenticated users view their inbox
@@ -110,10 +109,18 @@ def add_token(request):
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_classes(request):
-    pass
+    username = request.data["name"]
+    try:
         
+        user = User.objects.get(username=username)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    classes = user.in_classes.all()
+    data = [cl.serialize() for cl in classes]
+    return Response({"data": data}, status=status.HTTP_200_OK)
+
 @login_required(login_url="login")
 def notification(request):
     user = request.user
@@ -143,7 +150,7 @@ def notification(request):
         message_title = request.POST["topic"]
         message_body = request.POST["body"]
         priority = request.POST["Priority"]
-        
+
         if priority == "High":
             result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, sound="Default")
         else:

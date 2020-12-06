@@ -12,6 +12,12 @@ class Classes(models.Model):
     teaching_assistant = models.ManyToManyField(User, related_name="assist_classes")
     def __str__(self):
         return f"{self.name} by {self.instructor}"
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            #"recipient": [user.email for user in self.recipients.all()],
+        }
 
 class Notification(models.Model):
     #user = models.ForeignKey(User, on_delete=models.CASCADE, related_namcle="notifications")
