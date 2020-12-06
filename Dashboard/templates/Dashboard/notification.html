@@ -12,12 +12,18 @@
     <div class="form-group shadow-textarea">
         <textarea class="form-control z-depth-1" rows="7" placeholder="Write something here..." name="body" required></textarea>
     </div>
-<!--div>
+<div class="form-group">
 <label>Send to:</label>
-<div>
-<label class="radio-inline"><input type="radio" name="reciepent">Student</label>
-<label class="radio-inline"><input type="radio" name="reciepent">TA</label>
-<label class="radio-inline"><input type="radio" name="reciepent">Both</label-->
+<label class="radio-inline"><input type="radio" name="reciepent" value = "student">Student</label>
+<label class="radio-inline"><input type="radio" name="reciepent" value="TA">TA</label>
+</div>
+
+<div class="form-group">
+  <label>Send to:</label>
+  <label class="radio-inline"><input type="radio" name="Priority" value = "High">High</label>
+  <label class="radio-inline"><input type="radio" name="Priority" value="Low">Low</label>
+</div>
+
 <select class="browser-default custom-select", name="class_group" required>
   <option value="" disabled selected>Choose class</option>
   {% for class in classes %}

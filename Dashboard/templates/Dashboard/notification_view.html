@@ -6,7 +6,13 @@
     <h4>{{ notif.topic }} by {{ notif.sender }}</h4>
     <p>{{ notif.timestamp }}</p>
     <p>{{ notif.body }}</p>
+
+    <h4>Seen by {{ len(notif.seen.all()) }} ({{ total }})</h4>
+    {% for s in notif.seen.all() %}
+        {{ s.username }}
+    {% endfor %}
     {% if user.role == "instructor" %}
+    
     <form action="{% url 'notification_view' notif.id %}" method="POST">
         {% csrf_token %}
         <button type = "submit" class="btn btn-danger btn-md center-block" Style="width: 100px;" >Delete</button>

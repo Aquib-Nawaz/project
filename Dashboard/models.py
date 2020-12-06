@@ -21,7 +21,8 @@ class Notification(models.Model):
     body = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     seen = models.ManyToManyField(User, related_name="recieved_notif")
-    #reciepent = models.CharField(max_length=255)
+    reciepent = models.CharField(max_length=255)
+    priority = models.CharField(max_length=255)
 
     def serialize(self):
         return {

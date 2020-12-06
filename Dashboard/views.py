@@ -94,7 +94,7 @@ def login_student(request):
     username = request.data["username"]
     password = request.data["password"]
     user = authenticate(request, username=username, password=password)
-    if user is not None and user.role=="student":
+    if user is not None and (user.role=="student" or user.role=="TA"):
         return Response(status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -130,15 +130,26 @@ def notification(request):
             cl = classes.get(pk=id)
         except:
             raise Http404
-        students = cl.students.all()
+        reciepent = request.POST["reciepent"]
+        if reciepent == "student":
+            students = cl.students.all()
+        else:
+            students = cl.teaching_assistant.all()
+
         for s in students:
             if s.token is not None:
                 registration_ids.append(s.token)
-        print (students)
+        
         message_title = request.POST["topic"]
         message_body = request.POST["body"]
-        result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body)
-        notif = Notification.objects.create(sender=user, class_group=cl, topic=message_title, body=message_body)
+        priority = request.POST["Priority"]
+        
+        if priority == "High":
+            result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, sound="Default")
+        else:
+            result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, low_priority=True)
+
+        notif = Notification.objects.create(sender=user, class_group=cl, topic=message_title, body=message_body, priority=priority)
         notif.save()
         print (result)
         return HttpResponseRedirect(reverse("index"))
@@ -214,7 +225,11 @@ def notification_view(request, id):
     except:
         raise Http404
     if request.method == "GET":
-        return render (request, 'Dashboard/notification_view.html', {"notif": notif})
+        if notif.reciepent == "student":
+            total = len(cl.students.all())
+        else:
+            total = len(cl.teaching_assistant.all())
+        return render (request, 'Dashboard/notification_view.html', {"notif": notif, "total":total})
     if request.method == "POST":
         notif.delete()
         return HttpResponseRedirect(reverse("index")) 
@@ -244,3 +259,16 @@ def add_ta(request, id):
     except:
         raise Http404
     return HttpResponseRedirect(reverse("class_view", args=[id]))
+
+@api_view(['POST'])
+def seen_notif(request):
+    username = request.data["username"]
+    notif_id = request.data["id"]
+    try:
+        user = User.objects.get(username=username)
+        notif = Notification.objects.get(pk=notif_id)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    notif.seen.add(user)
+    notif.save()
+    return Response(status=status.HTTP_200_OK)

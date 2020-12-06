@@ -14,7 +14,7 @@
           
             <div>
               <ul class="navbar-nav mr-auto">
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and user.role != "student" %}
                     <li class="nav-item">
                         <a class="nav-link" href="#"><strong>{{ user.username }} as {{ user.role }}</strong></a>
                     </li>
@@ -38,7 +38,7 @@
                     </li>
                 {% endif %}
                 
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and user.role != student %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                     </li>
