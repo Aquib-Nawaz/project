@@ -236,7 +236,10 @@ def notification_view(request, id):
             total = len(cl.students.all())
         else:
             total = len(cl.teaching_assistant.all())
-        return render (request, 'Dashboard/notification_view.html', {"notif": notif, "total":total})
+            seen = notif.seen.all()
+            seen_count = len(seen)
+        return render (request, 'Dashboard/notification_view.html', {"notif": notif, "total":total,
+             "seen_count":seen_count, "seen": seen})
     if request.method == "POST":
         notif.delete()
         return HttpResponseRedirect(reverse("index")) 

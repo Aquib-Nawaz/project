@@ -7,8 +7,8 @@
     <p>{{ notif.timestamp }}</p>
     <p>{{ notif.body }}</p>
 
-    <h4>Seen by {{ len(notif.seen.all()) }} ({{ total }})</h4>
-    {% for s in notif.seen.all() %}
+    <p style="color: grey;">Seen by {{ seen_count }} ({{ total }})</p>
+    {% for s in seen %}
         {{ s.username }}
     {% endfor %}
     {% if user.role == "instructor" %}
