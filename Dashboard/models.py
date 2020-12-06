@@ -38,7 +38,7 @@ class Notification(models.Model):
             seen = True
         return {
             "id": self.id,
-            "sender": self.sender.name,
+            "sender": self.sender.username,
             #"recipient": [user.email for user in self.recipients.all()],
             "topic": self.topic,
             "body": self.body,
