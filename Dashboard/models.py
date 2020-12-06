@@ -32,7 +32,10 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ("-timestamp",)
-    def serialize(self):
+    def serialize(self, user):
+        seen = False
+        if user in self.seen.all():
+            seen = True
         return {
             "id": self.id,
             "sender": self.sender.name,
@@ -40,6 +43,7 @@ class Notification(models.Model):
             "topic": self.topic,
             "body": self.body,
             "timestamp": self.timestamp.strftime("%m/%d/%Y, %H:%M: %S"),
+            "seen": seen
         }
 
     

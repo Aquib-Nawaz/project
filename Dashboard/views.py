@@ -295,12 +295,15 @@ def seen_notif(request):
 def get_notifications(request):
     cl_id = request.data["id"]
     role = request.data["role"]
+    username = request.data["username"]
+    user = User.objects.get(username=username)
     try:
         cl = Classes.objects.get(pk=cl_id)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     notifications = cl.class_notification.filter(reciepent=role)
-    data = [notif.serialize() for notif in notifications]
+    data = [notif.serialize(user) for notif in notifications]
+
     return Response(data, status=status.HTTP_200_OK)
 
 @login_required(login_url='login')    
