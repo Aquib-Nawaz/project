@@ -213,7 +213,6 @@ def add_class(request):
 @login_required(login_url="login")
 def class_view(request, id):
     user = request.user
-
     try:
         if user.role == "instructor":
             cl = user.teach_classes.get(pk=id)
@@ -252,7 +251,28 @@ def notification_view(request, id):
         return render (request, 'Dashboard/notification_view.html', {"notif": notif, "total":total,
              "seen_count":seen_count, "seen": seen})
     if request.method == "POST":
-        notif.delete()
+        print(request.POST["button"])
+        if request.POST["button"]=="delete":
+            notif.delete()
+        if request.POST["button"]=="send":
+            push_service = FCMNotification(api_key="AAAARFVNDDc:APA91bETk2utEMjEJB7k9QE51q5RfqM-PfLCtWICq413mkvR1nP_PV8wwpfRxBbgPiULysbycpMv_LBh9MSRfzGYaX4EBV7mCSA9sKVfxZ_ommvAW3qoLvj3JnpWrRB6PI5eZiGgOa2X")
+            registration_ids = []
+            if notif.reciepent=="student":
+                students = notif.class_group.students.all()
+            else:
+                students = notif.class_group.teaching_assistant.all()
+            seen_stud = [s.username for s in notif.seen.all()]
+            for s in students:
+                if s.username not in seen_stud:
+                    if s.token is not None:
+                        registration_ids.append(s.token)
+            message_title = notif.topic
+            message_body = notif.body
+            priority = notif.priority
+            if priority == "High":
+                result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, sound="Default")
+            else:
+                result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, low_priority=True)
         return HttpResponseRedirect(reverse("index")) 
 
 @login_required(login_url="login")

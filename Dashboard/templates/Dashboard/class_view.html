@@ -72,6 +72,12 @@
     {% empty %}
         <h4>No notifications sent yet</h4>
     {% endfor %}
+    <h3>Registered Students</h3>
+    {% for stud in in_student %}
+        <p>{{ stud.username }}</p>
+    {% empty %}
+        <h4>No registered students</h4>
+    {% endfor %}
 {% else %}
     <h3>Login to access functionalities.</h3>
 {% endif %}
