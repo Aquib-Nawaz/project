@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -217,7 +218,8 @@ def class_view(request, id):
         if user.role == "instructor":
             cl = user.teach_classes.get(pk=id)
             in_student = cl.students.all()
-            return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all(), "in_student": in_student})
+            students = User.objects.filter(Q(role='TA') | Q(role='student')).exclude(in_classes=cl).exclude(assist_classes = cl)
+            return render (request, 'Dashboard/class_view.html', {"students":students, "class":cl, "notifications":cl.class_notification.all(), "in_student": in_student})
         else:
             cl = user.assist_classes.get(pk=id)
             return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})            
