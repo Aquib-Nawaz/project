@@ -1,12 +1,19 @@
 {% extends "Dashboard/layout.html" %}
+{% load static %}
+<head>
+	<link rel="stylesheet" href="{% static 'Dashboard/bootstrap.min.css' %}">
+	<link href="{% static 'Dashboard/styles.css' %}" rel="stylesheet">
+</head>
 {% block title %} {% endblock %}
 {% block body %}
 {% if user.is_authenticated %}
+<br>
     <form action="{% url 'add_class' %}" method="post">
         {% csrf_token %}
-        <div class="form-group">
+        <div class="form-group col-sm-4">
             <input autofocus class="form-control" type="text" name="title" placeholder="Title" required>
         </div>
+        <br>
         <input class="btn btn-primary" type="submit" value="ADD">
     </form>
     
