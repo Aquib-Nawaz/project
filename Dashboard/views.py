@@ -7,7 +7,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
 from django.http import JsonResponse
 from pyfcm import FCMNotification
 from .models import User, Classes, Notification
@@ -15,6 +14,7 @@ from .serializers import UserSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from background_task import background
 
 def index(request):
 
@@ -26,7 +26,7 @@ def index(request):
         return render(request, "Dashboard/index.html", {"classes":user.assist_classes.all()})
     elif user.is_staff:
         return render(request, "Dashboard/index.html")
-    else:    
+    else:
         return HttpResponseRedirect(reverse("login"))
 
 
@@ -36,7 +36,7 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
-        user = authenticate(request, username=username, password=password) 
+        user = authenticate(request, username=username, password=password)
 
         # Check if authentication successful
         if user is not None and user.role != "student" :
@@ -89,7 +89,7 @@ def register_student(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def login_student(request):
@@ -127,6 +127,30 @@ def get_classes(request):
     print (data1,data2)
     return Response({"data1": data1, "data2":data2}, status=status.HTTP_200_OK)
 
+@background(schedule=250)
+def notify_again(id):
+    print(id)
+    notif = Notification.objects.get(pk=id)
+    push_service = FCMNotification(api_key="AAAARFVNDDc:APA91bETk2utEMjEJB7k9QE51q5RfqM-PfLCtWICq413mkvR1nP_PV8wwpfRxBbgPiULysbycpMv_LBh9MSRfzGYaX4EBV7mCSA9sKVfxZ_ommvAW3qoLvj3JnpWrRB6PI5eZiGgOa2X")
+    registration_ids = []
+    if notif.reciepent=="student":
+        students = notif.class_group.students.all()
+    else:
+        students = notif.class_group.teaching_assistant.all()
+    seen_stud = [s.username for s in notif.seen.all()]
+    for s in students:
+        if s.username not in seen_stud:
+            if s.token is not None:
+                registration_ids.append(s.token)
+    message_title = notif.topic
+    message_body = notif.body
+    priority = notif.priority
+    if priority == "High":
+        result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, sound="Default")
+    else:
+        result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, low_priority=True)
+    print(result)
+
 @login_required(login_url="login")
 def notification(request):
     user = request.user
@@ -152,7 +176,7 @@ def notification(request):
         for s in students:
             if s.token is not None:
                 registration_ids.append(s.token)
-        
+
         message_title = request.POST["topic"]
         message_body = request.POST["body"]
         priority = request.POST["Priority"]
@@ -164,7 +188,9 @@ def notification(request):
 
         notif = Notification.objects.create(sender=user, class_group=cl, topic=message_title, reciepent=reciepent, body=message_body, priority=priority)
         notif.save()
+        notify_again(notif.id,repeat=250,schedule=250)
         print (result)
+        #call_command('process_tasks')
         return HttpResponseRedirect(reverse("index"))
     else:
         return render (request, "Dashboard/notification.html", {"classes":classes})
@@ -189,7 +215,7 @@ def add_instructor(request, id):
         use.save()
     return HttpResponseRedirect(reverse("pending_instructor"))
 
-@login_required(login_url="login")    
+@login_required(login_url="login")
 def delete_instructor(request, id):
     user = request.user
     if user.is_staff:
@@ -197,7 +223,7 @@ def delete_instructor(request, id):
             User.objects.get(pk=id).delete()
         except:
             raise Http404("Requsested user not found")
-        
+
     return HttpResponseRedirect(reverse("pending_instructor"))
 
 @login_required(login_url="login")
@@ -221,7 +247,7 @@ def class_view(request, id):
             return render (request, 'Dashboard/class_view.html', {"students":students, "class":cl, "notifications":cl.class_notification.all(), "in_student": in_student})
         else:
             cl = user.assist_classes.get(pk=id)
-            return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})            
+            return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})
     except:
         raise Http404
 
@@ -235,17 +261,17 @@ def notification_view(request, id):
             #return render (request, 'Dashboard/class_view.html', {"students":User.objects.filter(role='student').exclude(in_classes = cl),"class":cl, "notifications":cl.class_notification.all()})
         else:
             cl = user.assist_classes.get(pk=id1)
-            #return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})            
+            #return render (request, 'Dashboard/class_view.html', {"class":cl, "notifications":cl.class_notification.all()})
     except:
         raise Http404
     if request.method == "GET":
-        
+
         if notif.reciepent == "student":
             total = cl.students.all().count()
-            
+
         else:
             total = cl.teaching_assistant.all().count()
-            
+
         seen = notif.seen.all()
         seen_count = seen.count()
         return render (request, 'Dashboard/notification_view.html', {"notif": notif, "total":total,
@@ -273,7 +299,7 @@ def notification_view(request, id):
                 result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, sound="Default")
             else:
                 result = push_service.notify_multiple_devices(registration_ids=registration_ids, message_title=message_title, message_body=message_body, low_priority=True)
-        return HttpResponseRedirect(reverse("index")) 
+        return HttpResponseRedirect(reverse("index"))
 
 @login_required(login_url="login")
 def add_student(request, id):
@@ -329,7 +355,7 @@ def get_notifications(request):
 
     return Response(data, status=status.HTTP_200_OK)
 
-@login_required(login_url='login')    
+@login_required(login_url='login')
 def remove_student(request, id):
     user = request.user
     stud_id = request.POST["remove_student"]
@@ -340,5 +366,5 @@ def remove_student(request, id):
     except:
         raise Http404
     return HttpResponseRedirect(reverse("class_view", args=[id]))
-    
+
 

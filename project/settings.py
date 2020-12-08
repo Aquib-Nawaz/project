@@ -25,7 +25,7 @@ SECRET_KEY = '#c7i!668byzwtpfj!nhp0je_)#+*8hi9a+uy(mrc-=^s&dol)k'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','10.0.2.2','127.0.0.1']
+ALLOWED_HOSTS = ['localhost','10.0.2.2','127.0.0.1','paavankumar.pythonanywhere.com']
 
 
 # Application definition
@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Dashboard',
-    'rest_framework'
+    'rest_framework',
+    'background_task'
 ]
 
 MIDDLEWARE = [
@@ -116,9 +117,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+MAX_ATTEMPTS = 4
+MAX_RUN_TIME = 10
+BACKGROUND_TASK_RUN_ASYNC = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_ROOT = '/home/paavankumar/project/static'
