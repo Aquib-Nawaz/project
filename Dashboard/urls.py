@@ -13,6 +13,7 @@ urlpatterns = [
     path("<int:id>/delete_instructor", views.delete_instructor, name="delete_instructor"),
     path("register_student", views.register_student, name="register_student"),
     path("login_student", views.login_student, name="login_student"),
+    path("logout_student", views.logout_student, name="logout_student"),
     path("add_token", views.add_token),
     path("add_class", views.add_class, name="add_class"),
     path("<int:id>/class_view", views.class_view, name="class_view"),
@@ -23,5 +24,5 @@ urlpatterns = [
     path("seen_notif", views.seen_notif),
     path("<int:id>/remove_student", views.remove_student, name="remove_student"),
     path("get_notifications", views.get_notifications),
-        
+
 ]

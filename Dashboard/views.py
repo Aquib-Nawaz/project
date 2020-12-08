@@ -102,6 +102,17 @@ def login_student(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+def logout_student(request):
+    username = request.data["username"]
+    try:
+        user = User.objects.get(username=username)
+        user.token = None
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
 def add_token(request):
     username = request.data["username"]
     try:
